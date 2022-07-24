@@ -52,7 +52,6 @@ def eval_model_on_ds(i, e, valid_datasets, eval_positions, bptt, add_name, base_
         model_file, model_path, results_file = check_file(e)
 
     model, config_sample = load_model(base_path, model_file, device, None, verbose=False)
-    print(model[2].style_encoder)
 
     params = {'max_features': config_sample['num_features']
         , 'rescale_features': config_sample["normalize_by_used_features"]

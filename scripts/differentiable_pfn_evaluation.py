@@ -8,10 +8,8 @@ from scripts.tabular_metrics import calculate_score_per_method
 from scripts.tabular_evaluation import evaluate
 from priors.differentiable_prior import draw_random_style
 from tqdm import tqdm
-from pathlib import Path
 import random
-from model_builder import load_model
-from scripts.transformer_prediction_interface import get_params_from_config
+from scripts.transformer_prediction_interface import get_params_from_config, load_model_workflow
 
 """
 ===============================
@@ -24,50 +22,6 @@ def eval_model_range(i_range, *args, **kwargs):
     for i in i_range:
         eval_model(i, *args, **kwargs)
 
-
-def load_model_workflow(i, e, add_name, base_path, device='cpu', eval_addition=''):
-    """
-    Workflow for loading a model and setting appropriate parameters for diffable hparam tuning.
-
-    :param i:
-    :param e:
-    :param eval_positions_valid:
-    :param add_name:
-    :param base_path:
-    :param device:
-    :param eval_addition:
-    :return:
-    """
-    def check_file(e):
-        model_file = f'models_diff/prior_diff_real_checkpoint{add_name}_n_{i}_epoch_{e}.cpkt'
-        model_path = os.path.join(base_path, model_file)
-        # print('Evaluate ', model_path)
-        results_file = os.path.join(base_path,
-                                    f'models_diff/prior_diff_real_results{add_name}_n_{i}_epoch_{e}_{eval_addition}.pkl')
-        if not Path(model_path).is_file():  # or Path(results_file).is_file():
-            return None, None, None
-        return model_file, model_path, results_file
-
-    model_file = None
-    if e == -1:
-        for e_ in range(100, -1, -1):
-            model_file_, model_path_, results_file_ = check_file(e_)
-            if model_file_ is not None:
-                e = e_
-                model_file, model_path, results_file = model_file_, model_path_, results_file_
-                break
-    else:
-        model_file, model_path, results_file = check_file(e)
-
-    if model_file is None:
-        print('No checkpoint found')
-        return None
-
-    print(f'Loading {model_file}')
-
-    model, c = load_model(base_path, model_file, device, eval_positions=[], verbose=False)
-
-    return model, c, results_file
 
 
 def eval_model(i, e, valid_datasets, test_datasets, train_datasets, eval_positions_valid, eval_positions_test,
